@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Pixel Countdown</string>
+    <string name="widget_name">Pixel Countdown</string>
+    <string name="widget_description">Live countdown timer on your home screen</string>
+    <string name="channel_name">Countdown Notifications</string>
+    <string name="channel_description">Notifies you when your countdown reaches zero</string>
+    <string name="no_countdown">No Active Countdown</string>
+    <string name="tap_to_set">Tap to open app and create one</string>
+    <string name="event_reached">Event Reached!</string>
+    <string name="years_label">YRS</string>
+    <string name="months_label">MOS</string>
+    <string name="days_label">DAYS</string>
+    <string name="hours_label">HRS</string>
+    <string name="mins_label">MIN</string>
+    <string name="secs_label">SEC</string>
+</resources>
