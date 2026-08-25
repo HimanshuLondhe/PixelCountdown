@@ -90,7 +90,7 @@ fun AboutScreen(
 
             Button(
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HimanshuLondhe"))
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/HimanshuLondhe/PixelCountdown"))
                     context.startActivity(intent)
                 },
                 shape = RoundedCornerShape(12.dp)

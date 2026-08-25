@@ -142,7 +142,8 @@ fun FontSelector(
     val options = listOf(
         "default" to stringResource(R.string.font_default),
         "serif" to stringResource(R.string.font_serif),
-        "monospace" to stringResource(R.string.font_monospace)
+        "monospace" to stringResource(R.string.font_monospace),
+        "public_sans" to stringResource(R.string.font_public_sans)
     )
 
     Column(Modifier.selectableGroup()) {

@@ -122,8 +122,7 @@ class CountdownCalculatorTest {
             id = "test-123",
             title = "Vacation in Tokyo",
             targetEpochMillis = 1750000000000L,
-            createdAt = 1700000000000L,
-            isPinnedToWidget = true
+            createdAt = 1700000000000L
         )
 
         val encoded = json.encodeToString(item)
@@ -132,6 +131,5 @@ class CountdownCalculatorTest {
         assertEquals(item.id, decoded.id)
         assertEquals(item.title, decoded.title)
         assertEquals(item.targetEpochMillis, decoded.targetEpochMillis)
-        assertEquals(item.isPinnedToWidget, decoded.isPinnedToWidget)
     }
 }

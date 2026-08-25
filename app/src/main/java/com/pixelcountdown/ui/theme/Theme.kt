@@ -71,6 +71,7 @@ fun PixelCountdownTheme(
     val fontFamily = when (fontPref) {
         "serif" -> FontFamily.Serif
         "monospace" -> FontFamily.Monospace
+        "public_sans" -> PublicSans
         else -> FontFamily.Default
     }
 

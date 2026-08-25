@@ -22,10 +22,27 @@
     <color name="widget_chip_light">#E0E5EC</color>
     <color name="widget_chip_dark">#2B2D30</color>
 
+    <!-- Theme-aware resources (respects values-night) -->
     <color name="widget_background">@color/md_theme_light_surface</color>
     <color name="widget_chip_background">@color/md_theme_light_surfaceVariant</color>
     <color name="widget_text_primary">@color/md_theme_light_onSurface</color>
     <color name="widget_text_secondary">@color/md_theme_light_onSurfaceVariant</color>
     <color name="widget_accent">@color/md_theme_light_primary</color>
     <color name="widget_divider">#D1D5DB</color>
+
+    <!-- Explicit Light Colors (for forced theme) -->
+    <color name="widget_bg_fixed_light">@color/md_theme_light_surface</color>
+    <color name="widget_chip_bg_fixed_light">@color/md_theme_light_surfaceVariant</color>
+    <color name="widget_txt_primary_fixed_light">@color/md_theme_light_onSurface</color>
+    <color name="widget_txt_secondary_fixed_light">@color/md_theme_light_onSurfaceVariant</color>
+    <color name="widget_acc_fixed_light">@color/md_theme_light_primary</color>
+    <color name="widget_div_fixed_light">#D1D5DB</color>
+
+    <!-- Explicit Dark Colors (for forced theme) -->
+    <color name="widget_bg_fixed_dark">@color/md_theme_dark_surface</color>
+    <color name="widget_chip_bg_fixed_dark">@color/md_theme_dark_surfaceVariant</color>
+    <color name="widget_txt_primary_fixed_dark">@color/md_theme_dark_onSurface</color>
+    <color name="widget_txt_secondary_fixed_dark">@color/md_theme_dark_onSurfaceVariant</color>
+    <color name="widget_acc_fixed_dark">@color/md_theme_dark_primary</color>
+    <color name="widget_div_fixed_dark">#3C4043</color>
 </resources>

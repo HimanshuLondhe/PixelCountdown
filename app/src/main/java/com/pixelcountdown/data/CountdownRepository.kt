@@ -31,11 +31,14 @@ class CountdownRepository(private val context: Context) {
     }
 
     private fun persist(list: List<CountdownItem>) {
-        val sortedList = list.sortedBy { it.targetEpochMillis }
-        val rawJson = json.encodeToString(sortedList)
+        val rawJson = json.encodeToString(list)
         prefs.edit().putString(KEY_COUNTDOWNS, rawJson).apply()
-        _countdowns.value = sortedList
+        _countdowns.value = list
         notifyWidgetUpdate()
+    }
+
+    fun reorderCountdowns(list: List<CountdownItem>) {
+        persist(list)
     }
 
     fun saveCountdown(item: CountdownItem): CountdownItem {
@@ -46,8 +49,7 @@ class CountdownRepository(private val context: Context) {
             itemToSave = item
             current[index] = itemToSave
         } else {
-            // If it is the very first countdown added, make it pinned by default
-            itemToSave = if (current.isEmpty()) item.copy(isPinnedToWidget = true) else item
+            itemToSave = item
             current.add(itemToSave)
         }
         persist(current)
@@ -63,20 +65,8 @@ class CountdownRepository(private val context: Context) {
         if (itemToDelete != null) {
             NotificationHelper.cancelAlarm(context, itemToDelete.id)
             current.remove(itemToDelete)
-            
-            // If the deleted item was pinned and there are items remaining, pin the first one
-            if (itemToDelete.isPinnedToWidget && current.isNotEmpty()) {
-                current[0] = current[0].copy(isPinnedToWidget = true)
-            }
             persist(current)
         }
-    }
-
-    fun setPinned(id: String) {
-        val current = _countdowns.value.map { item ->
-            item.copy(isPinnedToWidget = item.id == id)
-        }
-        persist(current)
     }
 
     fun bindWidgetToCountdown(widgetId: Int, countdownId: String) {
@@ -101,16 +91,12 @@ class CountdownRepository(private val context: Context) {
             }
         }
 
-        // Priority 2: pinned item
-        val pinned = list.find { it.isPinnedToWidget }
-        if (pinned != null) return pinned
-
-        // Priority 3: next upcoming countdown
+        // Priority 2: next upcoming countdown
         val now = System.currentTimeMillis()
         val upcoming = list.firstOrNull { it.targetEpochMillis > now }
         if (upcoming != null) return upcoming
 
-        // Priority 4: first in list
+        // Priority 3: first in list
         return list.firstOrNull()
     }
 

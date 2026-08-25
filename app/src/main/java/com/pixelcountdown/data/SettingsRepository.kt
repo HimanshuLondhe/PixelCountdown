@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SettingsRepository(context: Context) {
+class SettingsRepository(private val context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
 
     private val _theme = MutableStateFlow(prefs.getString(KEY_THEME, "system") ?: "system")
@@ -18,6 +18,7 @@ class SettingsRepository(context: Context) {
     fun setTheme(theme: String) {
         prefs.edit().putString(KEY_THEME, theme).apply()
         _theme.value = theme
+        CountdownRepository.getInstance(context).notifyWidgetUpdate()
     }
 
     fun setFontFamily(font: String) {

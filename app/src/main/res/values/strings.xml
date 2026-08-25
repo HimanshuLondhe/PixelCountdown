@@ -26,6 +26,7 @@
     <string name="font_default">Default</string>
     <string name="font_serif">Serif</string>
     <string name="font_monospace">Monospace</string>
+    <string name="font_public_sans">Public Sans</string>
     <string name="settings_notifications">Notifications</string>
     <string name="settings_notifications_desc">Configure sounds, vibration, and priority</string>
     <string name="about_title">About</string>

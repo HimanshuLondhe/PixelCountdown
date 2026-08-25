@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,12 +36,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.pixelcountdown.data.CountdownItem
 import com.pixelcountdown.data.CountdownRepository
@@ -49,6 +52,7 @@ import com.pixelcountdown.receiver.NotificationHelper
 import com.pixelcountdown.ui.about.AboutScreen
 import com.pixelcountdown.ui.components.CountdownCard
 import com.pixelcountdown.ui.components.CountdownEditDialog
+import com.pixelcountdown.ui.components.ReorderableLazyColumn
 import com.pixelcountdown.ui.components.SelectWidgetTimerDialog
 import com.pixelcountdown.ui.settings.SettingsScreen
 import com.pixelcountdown.ui.theme.PixelCountdownTheme
@@ -237,11 +241,12 @@ fun MainScreen(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "PixelTimer - Countdown",
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp
                     )
                 },
                 navigationIcon = {
@@ -250,7 +255,7 @@ fun MainScreen(
                     }
                 },
                 scrollBehavior = scrollBehavior,
-                colors = TopAppBarDefaults.largeTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     scrolledContainerColor = MaterialTheme.colorScheme.surface
                 )
@@ -308,30 +313,27 @@ fun MainScreen(
                     )
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(
-                        items = countdowns,
-                        key = { it.id }
-                    ) { item ->
-                        CountdownCard(
-                            item = item,
-                            onEdit = {
-                                itemToEdit = item
-                                showEditDialog = true
-                            },
-                            onDelete = {
-                                itemToDelete = item
-                            },
-                            onPinToggle = {
-                                repository.setPinned(item.id)
+                ReorderableLazyColumn(
+                    items = countdowns,
+                    onReorder = { repository.reorderCountdowns(it) },
+                    modifier = Modifier.fillMaxSize(),
+                    itemKey = { it.id }
+                ) { item, isDragging ->
+                    CountdownCard(
+                        item = item,
+                        onEdit = {
+                            itemToEdit = item
+                            showEditDialog = true
+                        },
+                        onDelete = {
+                            itemToDelete = item
+                        },
+                        modifier = Modifier
+                            .padding(bottom = if (item == countdowns.last()) 88.dp else 0.dp)
+                            .graphicsLayer {
+                                alpha = if (isDragging) 0.9f else 1f
                             }
-                        )
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(88.dp))
-                    }
+                    )
                 }
             }
         }

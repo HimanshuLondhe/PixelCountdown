@@ -68,7 +68,16 @@ class PixelCountdownWidgetProvider : AppWidgetProvider() {
             repo: CountdownRepository
         ) {
             try {
-                val views = RemoteViews(context.packageName, R.layout.widget_pixel_countdown)
+                val prefs = context.getSharedPreferences("settings_prefs", Context.MODE_PRIVATE)
+                val themePref = prefs.getString("pref_theme", "system") ?: "system"
+                
+                val layoutId = when (themePref) {
+                    "light" -> R.layout.widget_pixel_countdown_light
+                    "dark" -> R.layout.widget_pixel_countdown_dark
+                    else -> R.layout.widget_pixel_countdown
+                }
+                
+                val views = RemoteViews(context.packageName, layoutId)
                 val activeItem = repo.getWidgetCountdown(appWidgetId)
 
                 // Setup click intent to open main activity with widget selection action
