@@ -1,4 +1,4 @@
-# Pixel Countdown ⏳
+# PixelTimer - Countdown ⏳
 
 A modern, minimalist countdown timer application designed and optimized specifically for **Google Pixel** devices, built with **Jetpack Compose**, **Material 3 (Material You)**, and native **AppWidgetProvider**.
 

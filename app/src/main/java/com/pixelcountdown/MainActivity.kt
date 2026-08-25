@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,40 +27,36 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.HourglassEmpty
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.pixelcountdown.data.CountdownItem
 import com.pixelcountdown.data.CountdownRepository
+import com.pixelcountdown.data.SettingsRepository
 import com.pixelcountdown.receiver.NotificationHelper
+import com.pixelcountdown.ui.about.AboutScreen
 import com.pixelcountdown.ui.components.CountdownCard
 import com.pixelcountdown.ui.components.CountdownEditDialog
 import com.pixelcountdown.ui.components.SelectWidgetTimerDialog
+import com.pixelcountdown.ui.settings.SettingsScreen
 import com.pixelcountdown.ui.theme.PixelCountdownTheme
-import com.pixelcountdown.widget.PixelCountdownWidgetProvider
+import kotlinx.coroutines.launch
+
+enum class AppScreen {
+    Main, Settings, About
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -73,11 +70,11 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
 
         setContent {
-            PixelCountdownTheme {
-                MainScreen(
+            val settingsRepo = remember { SettingsRepository.getInstance(applicationContext) }
+            PixelCountdownTheme(settingsRepository = settingsRepo) {
+                AppNavigation(
                     targetWidgetId = widgetIdState.value,
                     onWidgetTimerSelected = { widgetId ->
-                        // Finish configure activity if opened from widget setup
                         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                         setResult(Activity.RESULT_OK, resultValue)
                         widgetIdState.value = null
@@ -109,12 +106,89 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun AppNavigation(
+    targetWidgetId: Int?,
+    onWidgetTimerSelected: (Int) -> Unit,
+    onDismissWidgetSelection: () -> Unit
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    var currentScreen by remember { mutableStateOf(AppScreen.Main) }
+
+    BackHandler(enabled = currentScreen != AppScreen.Main || drawerState.isOpen) {
+        if (drawerState.isOpen) {
+            scope.launch { drawerState.close() }
+        } else {
+            currentScreen = AppScreen.Main
+        }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.app_name),
+                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Outlined.HourglassEmpty, contentDescription = null) },
+                    label = { Text("Timers") },
+                    selected = currentScreen == AppScreen.Main,
+                    onClick = {
+                        currentScreen = AppScreen.Main
+                        scope.launch { drawerState.close() }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                    label = { Text(stringResource(R.string.menu_settings)) },
+                    selected = currentScreen == AppScreen.Settings,
+                    onClick = {
+                        currentScreen = AppScreen.Settings
+                        scope.launch { drawerState.close() }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Info, contentDescription = null) },
+                    label = { Text(stringResource(R.string.menu_about)) },
+                    selected = currentScreen == AppScreen.About,
+                    onClick = {
+                        currentScreen = AppScreen.About
+                        scope.launch { drawerState.close() }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
+        }
+    ) {
+        when (currentScreen) {
+            AppScreen.Main -> MainScreen(
+                targetWidgetId = targetWidgetId,
+                onWidgetTimerSelected = onWidgetTimerSelected,
+                onDismissWidgetSelection = onDismissWidgetSelection,
+                onOpenDrawer = { scope.launch { drawerState.open() } }
+            )
+            AppScreen.Settings -> SettingsScreen(onBack = { currentScreen = AppScreen.Main })
+            AppScreen.About -> AboutScreen(onBack = { currentScreen = AppScreen.Main })
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     targetWidgetId: Int?,
     onWidgetTimerSelected: (Int) -> Unit,
-    onDismissWidgetSelection: () -> Unit
+    onDismissWidgetSelection: () -> Unit,
+    onOpenDrawer: () -> Unit
 ) {
     val context = LocalContext.current
     val repository = remember { CountdownRepository.getInstance(context) }
@@ -133,11 +207,9 @@ fun MainScreen(
         if (targetWidgetId != null && targetWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
             activeWidgetBindingId = targetWidgetId
             if (countdowns.isEmpty()) {
-                // If none exist, prompt to create one immediately
                 itemToEdit = null
                 showEditDialog = true
             } else {
-                // Give option to choose from available timers
                 showWidgetPicker = true
             }
         }
@@ -168,9 +240,14 @@ fun MainScreen(
             LargeTopAppBar(
                 title = {
                     Text(
-                        text = "Pixel Countdown",
+                        text = "PixelTimer - Countdown",
                         fontWeight = FontWeight.Bold
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Menu")
+                    }
                 },
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.largeTopAppBarColors(

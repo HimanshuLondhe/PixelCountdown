@@ -1,0 +1,8 @@
+- [ ] Implement `SettingsRepository` for preference persistence
+- [ ] Update `Theme.kt` and `Type.kt` for dynamic theme/font support
+- [ ] Create `SettingsScreen.kt`
+- [ ] Create `AboutScreen.kt`
+- [ ] Integrate `ModalNavigationDrawer` in `MainActivity.kt`
+- [ ] Add navigation logic to switch between Main, Settings, and About screens
+- [ ] Verify persistence and theme/font switching
+- [ ] Test the Easter egg and external links

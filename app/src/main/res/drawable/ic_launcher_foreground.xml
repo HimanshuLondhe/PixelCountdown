@@ -3,7 +3,22 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Modern Geometric Hourglass -->
+    <!-- The frame uses bold, rounded lines for a Material 3 feel -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M38,30h32v8l-10,10 10,10v8h-32v-8l10,-10 -10,-10z M44,36v2.5l7,7 7,-7v-2.5z M44,61.5v2.5h20v-2.5l-7,-7z"/>
+        android:pathData="M34,26h40c2.2,0 4,1.8 4,4v6c0,2.2 -1.8,4 -4,4L58,54l16,14c2.2,0 4,1.8 4,4v6c0,2.2 -1.8,4 -4,4H34c-2.2,0 -4,-1.8 -4,-4v-6c0,-2.2 1.8,-4 4,-4l16,-14 -16,-14c-2.2,0 -4,-1.8 -4,-4v-6C30,27.8 31.8,26 34,26z M38,30v4.83L51,51.5L64,34.83V30H38z M38,78h26v-4.83L51,56.5L38,73.17V78z"/>
+
+    <!-- "Pixel" sand particles - representing the 'Pixel' name and digital countdown -->
+    <!-- Falling particle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M51,44h6v6h-6z"/>
+
+    <!-- Bottom pile accumulation -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,70h4v4h-4z M52,70h4v4h-4z M58,70h4v4h-4z M49,66h4v4h-4z M55,66h4v4h-4z M52,62h4v4h-4z"/>
+
 </vector>
