@@ -1,0 +1,8 @@
+<resources>
+    <color name="widget_background">@color/md_theme_dark_surface</color>
+    <color name="widget_chip_background">@color/md_theme_dark_surfaceVariant</color>
+    <color name="widget_text_primary">@color/md_theme_dark_onSurface</color>
+    <color name="widget_text_secondary">@color/md_theme_dark_onSurfaceVariant</color>
+    <color name="widget_accent">@color/md_theme_dark_primary</color>
+    <color name="widget_divider">#3C4043</color>
+</resources>

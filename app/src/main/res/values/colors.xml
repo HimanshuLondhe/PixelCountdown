@@ -21,4 +21,11 @@
     <color name="widget_bg_dark">#1E2022</color>
     <color name="widget_chip_light">#E0E5EC</color>
     <color name="widget_chip_dark">#2B2D30</color>
+
+    <color name="widget_background">@color/md_theme_light_surface</color>
+    <color name="widget_chip_background">@color/md_theme_light_surfaceVariant</color>
+    <color name="widget_text_primary">@color/md_theme_light_onSurface</color>
+    <color name="widget_text_secondary">@color/md_theme_light_onSurfaceVariant</color>
+    <color name="widget_accent">@color/md_theme_light_primary</color>
+    <color name="widget_divider">#D1D5DB</color>
 </resources>

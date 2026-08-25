@@ -44,12 +44,18 @@
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+                <action android:name="android.appwidget.action.APPWIDGET_DISABLED" />
                 <action android:name="com.pixelcountdown.ACTION_REFRESH_WIDGET" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/pixel_countdown_widget_info" />
         </receiver>
+
+        <service
+            android:name=".widget.WidgetUpdateService"
+            android:exported="false" />
 
     </application>
 

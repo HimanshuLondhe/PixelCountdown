@@ -21,7 +21,8 @@
             android:layout_width="22dp"
             android:layout_height="22dp"
             android:src="@drawable/ic_hourglass"
-            android:contentDescription="@string/app_name" />
+            android:contentDescription="@string/app_name"
+            android:tint="@color/widget_accent" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -38,7 +39,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/no_countdown"
-                android:textColor="#1F1F1F"
+                android:textColor="@color/widget_text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -49,7 +50,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="@string/tap_to_set"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
@@ -59,7 +60,7 @@
         android:layout_height="1dp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="6dp"
-        android:background="#D1D5DB"
+        android:background="@color/widget_divider"
         android:contentDescription="@null" />
 
     <!-- Countdown Units Row (Years, Months, Days, Hours, Minutes, Seconds) -->
@@ -92,7 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -100,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/years_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
 
@@ -125,7 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -133,7 +134,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/months_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
 
@@ -157,7 +158,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -165,7 +166,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/days_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
 
@@ -189,7 +190,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -197,7 +198,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/hours_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
 
@@ -221,7 +222,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -229,7 +230,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mins_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
 
@@ -253,7 +254,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="#0B57D0"
+                android:textColor="@color/widget_accent"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
@@ -261,7 +262,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/secs_label"
-                android:textColor="#444746"
+                android:textColor="@color/widget_text_secondary"
                 android:textSize="9sp" />
         </LinearLayout>
     </LinearLayout>
@@ -274,7 +275,7 @@
         android:background="@drawable/widget_chip_bg"
         android:gravity="center"
         android:text="@string/event_reached"
-        android:textColor="#0B57D0"
+        android:textColor="@color/widget_accent"
         android:textSize="14sp"
         android:textStyle="bold"
         android:visibility="gone" />

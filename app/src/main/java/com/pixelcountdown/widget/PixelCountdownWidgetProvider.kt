@@ -20,12 +20,26 @@ class PixelCountdownWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        Log.d(TAG, "onUpdate called for ${appWidgetIds.size} widgets")
         val repo = CountdownRepository.getInstance(context)
 
         for (appWidgetId in appWidgetIds) {
             updateWidget(context, appWidgetManager, appWidgetId, repo)
         }
+        
+        // Ensure service is running if we have widgets
+        if (appWidgetIds.isNotEmpty()) {
+            context.startService(Intent(context, WidgetUpdateService::class.java))
+        }
+    }
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        context.startService(Intent(context, WidgetUpdateService::class.java))
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        context.stopService(Intent(context, WidgetUpdateService::class.java))
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -53,7 +67,6 @@ class PixelCountdownWidgetProvider : AppWidgetProvider() {
             appWidgetId: Int,
             repo: CountdownRepository
         ) {
-            Log.d(TAG, "updateWidget for id: $appWidgetId")
             try {
                 val views = RemoteViews(context.packageName, R.layout.widget_pixel_countdown)
                 val activeItem = repo.getWidgetCountdown(appWidgetId)

@@ -81,6 +81,7 @@ class MainActivity : ComponentActivity() {
                         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
                         setResult(Activity.RESULT_OK, resultValue)
                         widgetIdState.value = null
+                        finish()
                     },
                     onDismissWidgetSelection = {
                         widgetIdState.value = null
