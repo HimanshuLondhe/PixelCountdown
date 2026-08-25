@@ -1,6 +1,8 @@
 # PixelTimer - Countdown ⏳
 
-A modern, minimalist countdown timer application designed and optimized specifically for **Google Pixel** devices, built with **Jetpack Compose**, **Material 3 (Material You)**, and native **AppWidgetProvider**.
+A modern, minimalist countdown timer application designed and optimized specifically for **Google Pixel** devices. Built with **Jetpack Compose**, **Material 3 (Material You)**, and native **AppWidgetProvider**.
+
+[![Build PixelTimer - Countdown APK](https://github.com/HimanshuLondhe/pixel-countdown/actions/workflows/build-apk.yml/badge.svg)](https://github.com/HimanshuLondhe/pixel-countdown/actions/workflows/build-apk.yml)
 
 ---
 
@@ -9,20 +11,20 @@ A modern, minimalist countdown timer application designed and optimized specific
 1. **Precision Countdown Breakdown**:
    - Displays exact remaining time in **Years, Months, Days, Hours, Minutes, and Seconds**.
    - Handles leap years, month length differences, and daylight savings transitions seamlessly.
-2. **Multiple Countdowns Management**:
-   - Add new timers with event title, target date (DatePicker), and target time (TimePicker).
-   - Edit existing timers or delete timers with confirmation dialogs.
-   - Pinned widget selector: choose which countdown is displayed on your home screen widget.
-3. **Completion Notifications**:
+2. **Personalization (Settings)**:
+   - **Dynamic Theming**: Choose between Light, Dark, or System Default themes.
+   - **Custom Typography**: Select from Default, Serif, or Monospace font styles to match your personal aesthetic.
+   - **Hamburger Navigation**: A modern Navigation Drawer for quick access to your timers, settings, and about info.
+3. **Pixel Home Screen Widget**:
+   - **Live Countdown**: Unlike standard widgets, PixelTimer features a background update service that enables **live seconds** ticking on your home screen.
+   - **Battery Efficient**: Updates automatically pause when the screen is off to save power.
+   - **Theme-Aware**: The widget harmonizes with your system's light/dark mode and Material You palette.
+4. **Completion Notifications**:
    - Exact Android `AlarmManager` integration (`setExactAndAllowWhileIdle`).
-   - High-priority notification with sound and vibration fires the moment any timer finishes.
-   - Automatically reschedules future alarms across device reboots (`RECEIVE_BOOT_COMPLETED`).
-4. **Optimized for Google Pixel**:
-   - **Dynamic Color (Material You)**: Automatically harmonizes app and widget colors with your system wallpaper palette (`dynamicLightColorScheme` / `dynamicDarkColorScheme`).
+   - High-priority notifications with sound and vibration fire the moment any timer finishes.
+5. **Modern Branding**:
+   - **Digital Hourglass Icon**: A custom-designed adaptive icon that supports Material 3 themed icons (monochrome).
    - Clean, lightweight typography with edge-to-edge system navigation.
-5. **Pixel Home Screen Widget**:
-   - Companion home screen widget (3x2 or resizable) with live countdown chips.
-   - Tap widget to directly open and manage countdowns in the app.
 
 ---
 
@@ -38,13 +40,17 @@ pixel-countdown/
 │   │   │   ├── MainActivity.kt
 │   │   │   ├── data/
 │   │   │   │   ├── CountdownModel.kt
-│   │   │   │   └── CountdownRepository.kt
+│   │   │   │   ├── CountdownRepository.kt
+│   │   │   │   └── SettingsRepository.kt
 │   │   │   ├── receiver/
 │   │   │   │   ├── CountdownAlarmReceiver.kt
 │   │   │   │   └── NotificationHelper.kt
 │   │   │   ├── widget/
-│   │   │   │   └── PixelCountdownWidgetProvider.kt
+│   │   │   │   ├── PixelCountdownWidgetProvider.kt
+│   │   │   │   └── WidgetUpdateService.kt
 │   │   │   └── ui/
+│   │   │       ├── settings/ SettingsScreen.kt
+│   │   │       ├── about/ AboutScreen.kt
 │   │   │       ├── components/
 │   │   │       │   ├── CountdownCard.kt
 │   │   │       │   └── CountdownEditDialog.kt
@@ -62,22 +68,36 @@ pixel-countdown/
 
 ---
 
+## 🛠️ Technical Details
+
+- **Language**: 100% Kotlin
+- **UI Framework**: Jetpack Compose with Material 3
+- **Data Persistence**: SharedPreferences with KotlinX Serialization
+- **Architecture**: Modern Android architecture with Repositories and StateFlow
+- **Testing**: Comprehensive JUnit 4 test suite for countdown logic and serialization.
+
+---
+
 ## 🚀 How to Build the APK
 
 ### Option A: Open in Android Studio
 1. Open **Android Studio**.
-2. Select **Open** and choose `/Users/himanshu/.gemini/antigravity/scratch/pixel-countdown`.
-3. Click **Build > Build Bundle(s) / APK(s) > Build APK(s)** or click **Run** to deploy directly to your Pixel device or emulator.
+2. Select **Open** and choose this project directory.
+3. Click **Build > Build Bundle(s) / APK(s) > Build APK(s)** or click **Run** to deploy directly to your device.
 
 ### Option B: Build with Gradle Command Line
 ```bash
-cd /Users/himanshu/.gemini/antigravity/scratch/pixel-countdown
 ./gradlew assembleDebug
 ```
-The compiled APK will be created at:
-```
-app/build/outputs/apk/debug/app-debug.apk
-```
+The compiled APK will be created at: `app/build/outputs/apk/debug/app-debug.apk`
 
-### Option C: Cloud CI (GitHub Actions)
-Push this repository to GitHub, and the included `.github/workflows/build-apk.yml` workflow will automatically build and provide the downloadable `app-debug.apk` in the GitHub Actions artifacts!
+---
+
+## 👤 Developer
+**Himanshu Londhe**
+[GitHub Profile](https://github.com/HimanshuLondhe)
+
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
