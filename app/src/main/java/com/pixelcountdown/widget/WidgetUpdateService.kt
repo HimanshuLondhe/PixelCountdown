@@ -1,5 +1,8 @@
 package com.pixelcountdown.widget
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
@@ -7,9 +10,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import androidx.core.app.NotificationCompat
+import com.pixelcountdown.R
 import com.pixelcountdown.data.CountdownRepository
 
 class WidgetUpdateService : Service() {
@@ -66,6 +73,48 @@ class WidgetUpdateService : Service() {
             addAction(Intent.ACTION_SCREEN_OFF)
         }
         registerReceiver(screenReceiver, filter)
+        
+        createNotificationChannel()
+        startAsForeground()
+    }
+
+    private fun startAsForeground() {
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("PixelTimer Active")
+            .setContentText("Keeping your home screen widgets updated.")
+            .setSmallIcon(R.drawable.ic_hourglass)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .build()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                NOTIFICATION_ID, 
+                notification, 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                } else {
+                    0
+                }
+            )
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Widget Updates",
+                NotificationManager.IMPORTANCE_MIN
+            ).apply {
+                description = "Required for live widget countdowns"
+                setShowBadge(false)
+            }
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -80,5 +129,10 @@ class WidgetUpdateService : Service() {
         unregisterReceiver(screenReceiver)
         handler.removeCallbacks(updateRunnable)
         super.onDestroy()
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "widget_update_channel"
+        private const val NOTIFICATION_ID = 1001
     }
 }

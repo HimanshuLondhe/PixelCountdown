@@ -14,6 +14,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,11 +54,12 @@ import com.pixelcountdown.receiver.NotificationHelper
 import com.pixelcountdown.ui.about.AboutScreen
 import com.pixelcountdown.ui.components.CountdownCard
 import com.pixelcountdown.ui.components.CountdownEditDialog
-import com.pixelcountdown.ui.components.ReorderableLazyColumn
 import com.pixelcountdown.ui.components.SelectWidgetTimerDialog
 import com.pixelcountdown.ui.settings.SettingsScreen
 import com.pixelcountdown.ui.theme.PixelCountdownTheme
+import com.pixelcountdown.widget.WidgetUpdateService
 import kotlinx.coroutines.launch
+import sh.calvin.reorderable.*
 
 enum class AppScreen {
     Main, Settings, About
@@ -72,6 +75,14 @@ class MainActivity : ComponentActivity() {
 
         NotificationHelper.createNotificationChannel(this)
         handleIntent(intent)
+        
+        // Start widget update service
+        val serviceIntent = Intent(this, WidgetUpdateService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
+        }
 
         setContent {
             val settingsRepo = remember { SettingsRepository.getInstance(applicationContext) }
@@ -313,27 +324,46 @@ fun MainScreen(
                     )
                 }
             } else {
-                ReorderableLazyColumn(
-                    items = countdowns,
-                    onReorder = { repository.reorderCountdowns(it) },
-                    modifier = Modifier.fillMaxSize(),
-                    itemKey = { it.id }
-                ) { item, isDragging ->
-                    CountdownCard(
-                        item = item,
-                        onEdit = {
-                            itemToEdit = item
-                            showEditDialog = true
-                        },
-                        onDelete = {
-                            itemToDelete = item
-                        },
-                        modifier = Modifier
-                            .padding(bottom = if (item == countdowns.last()) 88.dp else 0.dp)
-                            .graphicsLayer {
-                                alpha = if (isDragging) 0.9f else 1f
+                val lazyListState = rememberLazyListState()
+                val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                    val newList = countdowns.toMutableList().apply {
+                        add(to.index, removeAt(from.index))
+                    }
+                    repository.reorderCountdowns(newList)
+                }
+
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(countdowns, key = { it.id }) { item ->
+                        ReorderableItem(reorderableState, key = item.id) { isDragging ->
+                            val elevation by animateFloatAsState(if (isDragging) 8f else 0f)
+                            
+                            Box(
+                                modifier = Modifier
+                                    .longPressDraggableHandle()
+                                    .graphicsLayer {
+                                        shadowElevation = elevation
+                                        scaleX = if (isDragging) 1.05f else 1.0f
+                                        scaleY = if (isDragging) 1.05f else 1.0f
+                                        alpha = if (isDragging) 0.9f else 1f
+                                    }
+                            ) {
+                                CountdownCard(
+                                    item = item,
+                                    onEdit = {
+                                        itemToEdit = item
+                                        showEditDialog = true
+                                    },
+                                    onDelete = {
+                                        itemToDelete = item
+                                    },
+                                    modifier = Modifier.padding(bottom = if (item == countdowns.last()) 88.dp else 0.dp)
+                                )
                             }
-                    )
+                        }
+                    }
                 }
             }
         }

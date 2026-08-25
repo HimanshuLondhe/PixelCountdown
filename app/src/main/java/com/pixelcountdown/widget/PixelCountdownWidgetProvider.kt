@@ -8,6 +8,7 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
 import com.pixelcountdown.MainActivity
 import com.pixelcountdown.R
 import com.pixelcountdown.data.CountdownCalculator
@@ -28,13 +29,23 @@ class PixelCountdownWidgetProvider : AppWidgetProvider() {
         
         // Ensure service is running if we have widgets
         if (appWidgetIds.isNotEmpty()) {
-            context.startService(Intent(context, WidgetUpdateService::class.java))
+            val intent = Intent(context, WidgetUpdateService::class.java)
+            try {
+                ContextCompat.startForegroundService(context, intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to start WidgetUpdateService", e)
+            }
         }
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        context.startService(Intent(context, WidgetUpdateService::class.java))
+        val intent = Intent(context, WidgetUpdateService::class.java)
+        try {
+            ContextCompat.startForegroundService(context, intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start WidgetUpdateService onEnabled", e)
+        }
     }
 
     override fun onDisabled(context: Context) {
