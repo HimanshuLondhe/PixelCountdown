@@ -18,6 +18,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -324,43 +330,91 @@ fun MainScreen(
                     )
                 }
             } else {
-                val lazyListState = rememberLazyListState()
-                val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
-                    val newList = countdowns.toMutableList().apply {
-                        add(to.index, removeAt(from.index))
-                    }
-                    repository.reorderCountdowns(newList)
-                }
+                val configuration = LocalConfiguration.current
+                val isWideScreen = configuration.screenWidthDp >= 600
 
-                LazyColumn(
-                    state = lazyListState,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(countdowns, key = { it.id }) { item ->
-                        ReorderableItem(reorderableState, key = item.id) { isDragging ->
-                            val elevation by animateFloatAsState(if (isDragging) 8f else 0f)
-                            
-                            Box(
-                                modifier = Modifier
-                                    .longPressDraggableHandle()
-                                    .graphicsLayer {
-                                        shadowElevation = elevation
-                                        scaleX = if (isDragging) 1.05f else 1.0f
-                                        scaleY = if (isDragging) 1.05f else 1.0f
-                                        alpha = if (isDragging) 0.9f else 1f
-                                    }
-                            ) {
-                                CountdownCard(
-                                    item = item,
-                                    onEdit = {
-                                        itemToEdit = item
-                                        showEditDialog = true
-                                    },
-                                    onDelete = {
-                                        itemToDelete = item
-                                    },
-                                    modifier = Modifier.padding(bottom = if (item == countdowns.last()) 88.dp else 0.dp)
-                                )
+                if (isWideScreen) {
+                    val lazyGridState = rememberLazyGridState()
+                    val reorderableState = rememberReorderableLazyGridState(lazyGridState) { from, to ->
+                        val newList = countdowns.toMutableList().apply {
+                            add(to.index, removeAt(from.index))
+                        }
+                        repository.reorderCountdowns(newList)
+                    }
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        state = lazyGridState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 88.dp)
+                    ) {
+                        items(countdowns, key = { it.id }) { item ->
+                            ReorderableItem(reorderableState, key = item.id) { isDragging ->
+                                val elevation by animateFloatAsState(if (isDragging) 8f else 0f)
+
+                                Box(
+                                    modifier = Modifier
+                                        .longPressDraggableHandle()
+                                        .graphicsLayer {
+                                            shadowElevation = elevation
+                                            scaleX = if (isDragging) 1.05f else 1.0f
+                                            scaleY = if (isDragging) 1.05f else 1.0f
+                                            alpha = if (isDragging) 0.9f else 1f
+                                        }
+                                ) {
+                                    CountdownCard(
+                                        item = item,
+                                        onEdit = {
+                                            itemToEdit = item
+                                            showEditDialog = true
+                                        },
+                                        onDelete = {
+                                            itemToDelete = item
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    val lazyListState = rememberLazyListState()
+                    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                        val newList = countdowns.toMutableList().apply {
+                            add(to.index, removeAt(from.index))
+                        }
+                        repository.reorderCountdowns(newList)
+                    }
+
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(countdowns, key = { it.id }) { item ->
+                            ReorderableItem(reorderableState, key = item.id) { isDragging ->
+                                val elevation by animateFloatAsState(if (isDragging) 8f else 0f)
+
+                                Box(
+                                    modifier = Modifier
+                                        .longPressDraggableHandle()
+                                        .graphicsLayer {
+                                            shadowElevation = elevation
+                                            scaleX = if (isDragging) 1.05f else 1.0f
+                                            scaleY = if (isDragging) 1.05f else 1.0f
+                                            alpha = if (isDragging) 0.9f else 1f
+                                        }
+                                ) {
+                                    CountdownCard(
+                                        item = item,
+                                        onEdit = {
+                                            itemToEdit = item
+                                            showEditDialog = true
+                                        },
+                                        onDelete = {
+                                            itemToDelete = item
+                                        },
+                                        modifier = Modifier.padding(bottom = if (item == countdowns.last()) 88.dp else 0.dp)
+                                    )
+                                }
                             }
                         }
                     }
