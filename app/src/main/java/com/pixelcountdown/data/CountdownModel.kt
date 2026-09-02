@@ -14,7 +14,8 @@ data class CountdownItem(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
     val targetEpochMillis: Long,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val calendarIcsUid: String? = null
 ) {
     fun formattedTargetDateTime(): String {
         val zone = ZoneId.systemDefault()
