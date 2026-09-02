@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -39,6 +40,7 @@ fun CountdownCard(
     item: CountdownItem,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onCalendar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var remaining by remember(item.targetEpochMillis) {
@@ -88,6 +90,14 @@ fun CountdownCard(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = onCalendar) {
+                        Icon(
+                            imageVector = Icons.Outlined.Event,
+                            contentDescription = "Add to calendar",
+                            tint = if (item.calendarIcsUid != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     IconButton(onClick = onEdit) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,

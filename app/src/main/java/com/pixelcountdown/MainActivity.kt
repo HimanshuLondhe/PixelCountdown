@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,6 +39,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.EventRepeat
 import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -63,6 +67,7 @@ import com.pixelcountdown.ui.components.CountdownEditDialog
 import com.pixelcountdown.ui.components.SelectWidgetTimerDialog
 import com.pixelcountdown.ui.settings.SettingsScreen
 import com.pixelcountdown.ui.theme.PixelCountdownTheme
+import com.pixelcountdown.util.CalendarHelper
 import com.pixelcountdown.widget.WidgetUpdateService
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.*
@@ -218,6 +223,7 @@ fun MainScreen(
     var showEditDialog by remember { mutableStateOf(false) }
     var itemToEdit by remember { mutableStateOf<CountdownItem?>(null) }
     var itemToDelete by remember { mutableStateOf<CountdownItem?>(null) }
+    var pendingCalendarUpdateItem by remember { mutableStateOf<CountdownItem?>(null) }
     var showWidgetPicker by remember { mutableStateOf(false) }
     var activeWidgetBindingId by remember { mutableStateOf<Int?>(null) }
 
@@ -364,6 +370,11 @@ fun MainScreen(
                                 ) {
                                     CountdownCard(
                                         item = item,
+                                        onCalendar = {
+                                            val updated = item.copy(calendarIcsUid = CalendarHelper.getIcsUid(item))
+                                            repository.saveCountdown(updated)
+                                            CalendarHelper.launchCalendarApp(context, updated)
+                                        },
                                         onEdit = {
                                             itemToEdit = item
                                             showEditDialog = true
@@ -405,6 +416,11 @@ fun MainScreen(
                                 ) {
                                     CountdownCard(
                                         item = item,
+                                        onCalendar = {
+                                            val updated = item.copy(calendarIcsUid = CalendarHelper.getIcsUid(item))
+                                            repository.saveCountdown(updated)
+                                            CalendarHelper.launchCalendarApp(context, updated)
+                                        },
                                         onEdit = {
                                             itemToEdit = item
                                             showEditDialog = true
@@ -465,12 +481,16 @@ fun MainScreen(
             },
             onSave = { title, targetEpochMillis ->
                 val savedItem: CountdownItem
+                val wasInCalendar = itemToEdit?.calendarIcsUid != null
                 if (itemToEdit != null) {
                     val updated = itemToEdit!!.copy(
                         title = title,
                         targetEpochMillis = targetEpochMillis
                     )
                     savedItem = repository.saveCountdown(updated)
+                    if (wasInCalendar) {
+                        pendingCalendarUpdateItem = savedItem
+                    }
                 } else {
                     val newItem = CountdownItem(
                         title = title,
@@ -494,36 +514,170 @@ fun MainScreen(
         )
     }
 
-    // Delete Confirmation Dialog
-    if (itemToDelete != null) {
+    // Calendar Update Confirmation Dialog
+    if (pendingCalendarUpdateItem != null) {
         AlertDialog(
-            onDismissRequest = { itemToDelete = null },
-            shape = RoundedCornerShape(24.dp),
+            onDismissRequest = { pendingCalendarUpdateItem = null },
+            shape = RoundedCornerShape(28.dp),
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.EventRepeat,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
             title = {
                 Text(
-                    text = "Delete Countdown",
-                    fontWeight = FontWeight.Bold
+                    text = "Sync with Calendar?",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
                 )
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete \"${itemToDelete?.title}\"?",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "This countdown is linked to your calendar. Would you like to update the calendar event to match your changes?",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
                 )
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
-                        itemToDelete?.let { repository.deleteCountdown(it.id) }
-                        itemToDelete = null
-                    }
+                        pendingCalendarUpdateItem?.let {
+                            CalendarHelper.launchCalendarApp(context, it)
+                        }
+                        pendingCalendarUpdateItem = null
+                    },
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text("Update Calendar")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { itemToDelete = null }) {
-                    Text("Cancel")
+                TextButton(onClick = { pendingCalendarUpdateItem = null }) {
+                    Text("Keep App Only")
+                }
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    if (itemToDelete != null) {
+        val hasCalendarEvent = itemToDelete?.calendarIcsUid != null
+        AlertDialog(
+            onDismissRequest = { itemToDelete = null },
+            shape = RoundedCornerShape(28.dp),
+            icon = {
+                Icon(
+                    imageVector = if (hasCalendarEvent) Icons.Outlined.EventBusy else Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(32.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "Delete Countdown",
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Are you sure you want to delete \"${itemToDelete?.title}\"?",
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                    if (hasCalendarEvent) {
+                        Text(
+                            text = "This event was also added to your calendar.",
+                            modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                if (hasCalendarEvent) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(
+                            onClick = {
+                                itemToDelete?.let {
+                                    CalendarHelper.launchCalendarApp(context, it, isCancel = true)
+                                    repository.deleteCountdown(it.id)
+                                }
+                                itemToDelete = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            )
+                        ) {
+                            Text("Delete from App & Calendar", fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                itemToDelete?.let { repository.deleteCountdown(it.id) }
+                                itemToDelete = null
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Delete from App Only", fontWeight = FontWeight.SemiBold)
+                        }
+                        TextButton(
+                            onClick = { itemToDelete = null },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            itemToDelete?.let { repository.deleteCountdown(it.id) }
+                            itemToDelete = null
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                }
+            },
+            dismissButton = {
+                if (!hasCalendarEvent) {
+                    TextButton(onClick = { itemToDelete = null }) {
+                        Text("Cancel")
+                    }
                 }
             }
         )
